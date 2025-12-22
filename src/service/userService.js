@@ -1,4 +1,7 @@
-const { UserRepository } = require("../repository/userRepository.js")
+const { UserRepository } = require("../repository/userRepository.js");
+const jwt = require('jsonwebtoken');
+
+const { JWT_SECRET, PORT } = require("../config/serverConfig.js")
 
 class UserService {
     constructor() {
@@ -14,6 +17,27 @@ class UserService {
             throw error;
         }
     }
+
+    generateToken(user) {
+        try {
+            const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1d" })
+            return token;
+        } catch (error) {
+            console.error("Error while generating the token: ", error);
+            throw error;
+        }
+    }
+
+    verifyToken(token, JWT_SECRET){
+        try {
+            const result = jwt.verify(token, JWT_SECRET);
+            return result;
+        } catch (error) {
+            console.error("Error while validating the token: ", error);
+            throw error;
+        }
+    }
+
 }
 
 module.exports = {
