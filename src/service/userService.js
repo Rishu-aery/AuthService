@@ -1,5 +1,6 @@
 const { UserRepository } = require("../repository/userRepository.js");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const { JWT_SECRET, PORT } = require("../config/serverConfig.js")
 
@@ -34,6 +35,15 @@ class UserService {
             return result;
         } catch (error) {
             console.error("Error while validating the token: ", error);
+            throw error;
+        }
+    }
+
+    checkPassword(plainPassword, encryptedPassword) {
+        try {
+            return bcrypt.compare(plainPassword, encryptedPassword);
+        } catch (error) {
+            console.error("Error while comparing the password:", error);
             throw error;
         }
     }
