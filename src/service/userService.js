@@ -19,6 +19,24 @@ class UserService {
         }
     }
 
+    async signIn(email, password) {
+        try {
+            const user = await this.userRepository.getByEmail(email);
+            
+            const isPasswordMatch = await this.checkPassword(password, user.password);
+            if (!isPasswordMatch) {
+                console.log("Password doesn't match");
+                throw { error: "Incorrect Password!" };
+            }
+
+            const newToken = this.generateToken({user: user.email, id: user.id});
+            return newToken;
+        } catch (error) {
+            console.error("Error While Signing In: ", error);
+            throw error;
+        }
+    }
+
     generateToken(user) {
         try {
             const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1d" })
@@ -29,7 +47,7 @@ class UserService {
         }
     }
 
-    verifyToken(token, JWT_SECRET){
+    verifyToken(token, JWT_SECRET) {
         try {
             const result = jwt.verify(token, JWT_SECRET);
             return result;
@@ -39,9 +57,9 @@ class UserService {
         }
     }
 
-    checkPassword(plainPassword, encryptedPassword) {
+    async checkPassword(plainPassword, encryptedPassword) {
         try {
-            return bcrypt.compare(plainPassword, encryptedPassword);
+            return await bcrypt.compare(plainPassword, encryptedPassword);
         } catch (error) {
             console.error("Error while comparing the password:", error);
             throw error;
