@@ -1,6 +1,6 @@
 const { ClientErrors } = require("../utils/errorCodes.js")
 
-const validateSignIn = (req, res, next) => {
+const validateUserAuth = (req, res, next) => {
     const body = req.body;
 
     if (!body.email || !body.password) {
@@ -15,4 +15,4 @@ const validateSignIn = (req, res, next) => {
     next();
 }
 
-module.exports = validateSignIn;
+module.exports = validateUserAuth;
