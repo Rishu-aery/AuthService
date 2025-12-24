@@ -2,7 +2,7 @@ const { UserRepository } = require("../repository/userRepository.js");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const { JWT_SECRET, PORT } = require("../config/serverConfig.js")
+const { JWT_SECRET } = require("../config/serverConfig.js")
 
 class UserService {
     constructor() {
@@ -37,6 +37,21 @@ class UserService {
         }
     }
 
+    async isAuthenticated(token) {
+        try {
+            const response = this.verifyToken(token, JWT_SECRET);
+
+            const user = await this.userRepository.getById(response.id);
+            if (!user) {
+                throw { error: "User no longer exist for this token!" }
+            }
+            return user.id
+        } catch (error) {
+            console.error("Error In user authentication: ", error);
+            throw error;
+        }
+    }
+
     generateToken(user) {
         try {
             const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1d" })
@@ -47,9 +62,9 @@ class UserService {
         }
     }
 
-    verifyToken(token, JWT_SECRET) {
+    verifyToken(token, jwtSecret) {
         try {
-            const result = jwt.verify(token, JWT_SECRET);
+            const result = jwt.verify(token, jwtSecret);
             return result;
         } catch (error) {
             console.error("Error while validating the token: ", error);

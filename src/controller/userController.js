@@ -15,7 +15,7 @@ const create = async(req, res) => {
         return res.status(SuccessCodes.CREATED).json({
             data: user,
             success: true,
-            message: "Successfully Signed Up.",
+            message: "Successfully Signed Up",
         })
     } catch (error) {
         console.log("Error:", error);
@@ -35,8 +35,30 @@ const signIn = async(req, res) => {
         return res.status(SuccessCodes.OK).json({
             data: token,
             success: true,
-            message: "Successfully Signed In.",
+            message: "Successfully Signed In",
         });
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+            data: {},
+            success: false,
+            message: "Internal Server Error!",
+            err: error
+        });
+    }
+}
+
+const isAuthenticated = async(req, res) => {
+    try {
+        const token = req.headers.authorization.split(" ")[1]
+        const response = await userService.isAuthenticated(token);
+        console.log("response result------", response);
+        
+        res.status(SuccessCodes.OK).json({
+            data: response,
+            success: true,
+            message: "User Authenticated",
+        })
     } catch (error) {
         console.log("Error:", error);
         res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
@@ -50,5 +72,6 @@ const signIn = async(req, res) => {
 
 module.exports = {
     create,
-    signIn
+    signIn,
+    isAuthenticated
 }
