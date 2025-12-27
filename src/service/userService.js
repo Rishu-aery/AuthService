@@ -81,6 +81,16 @@ class UserService {
         }
     }
 
+    async isAdmin(userId) {
+        try {
+            const result = await this.userRepository.isAdmin(userId);
+            return result;
+        } catch (error) {
+            console.error("Error while validating the token: ", error);
+            throw error;
+        }
+    }
+
 }
 
 module.exports = {

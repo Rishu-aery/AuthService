@@ -19,7 +19,8 @@ const prepareAndStartServer = async () => {
         if (DB_SYNC) {
             db.sequelize.sync({ alter: true })
         }
-    })
+
+    });
 
 }
 

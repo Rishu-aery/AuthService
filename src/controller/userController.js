@@ -1,9 +1,9 @@
 const { UserService } = require("../service/userService.js");
-const { SuccessCodes, ServerErrors } = require("../utils/errorCodes.js");
+const { SuccessCodes, ServerErrors, ClientErrors } = require("../utils/errorCodes.js");
 
 const userService = new UserService();
 
-const create = async(req, res) => {
+const create = async (req, res) => {
     try {
         const body = req.body;
         const userRequest = {
@@ -11,7 +11,7 @@ const create = async(req, res) => {
             password: body.password
         }
         const user = await userService.create(userRequest);
-        
+
         return res.status(SuccessCodes.CREATED).json({
             data: user,
             success: true,
@@ -28,7 +28,7 @@ const create = async(req, res) => {
     }
 }
 
-const signIn = async(req, res) => {
+const signIn = async (req, res) => {
     try {
         const body = req.body;
         const token = await userService.signIn(body.email, body.password);
@@ -48,12 +48,10 @@ const signIn = async(req, res) => {
     }
 }
 
-const isAuthenticated = async(req, res) => {
+const isAuthenticated = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
         const response = await userService.isAuthenticated(token);
-        console.log("response result------", response);
-        
         res.status(SuccessCodes.OK).json({
             data: response,
             success: true,
@@ -70,8 +68,29 @@ const isAuthenticated = async(req, res) => {
     }
 }
 
+const isAdmin = async (req, res) => {
+    try {
+        const body = req.body;
+        const response = await userService.isAdmin(body.userId);
+        res.status(SuccessCodes.OK).json({
+            data: response,
+            success: true,
+            message: "Successfully fetched user is admin or not",
+        })
+    } catch (error) {
+        console.log("Error:", error);
+        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+            data: {},
+            success: false,
+            message: "Internal Server Error!",
+            err: error
+        });
+    }
+}
+
 module.exports = {
     create,
     signIn,
-    isAuthenticated
+    isAuthenticated,
+    isAdmin
 }
