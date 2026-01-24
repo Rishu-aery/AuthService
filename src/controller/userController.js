@@ -1,5 +1,4 @@
 const { UserService } = require("../service/userService.js");
-const { SuccessCodes, ServerErrors, ClientErrors } = require("../utils/errorCodes.js");
 
 const userService = new UserService();
 
@@ -12,18 +11,18 @@ const create = async (req, res) => {
         }
         const user = await userService.create(userRequest);
 
-        return res.status(SuccessCodes.CREATED).json({
+        return res.status(200).json({
             data: user,
             success: true,
             message: "Successfully Signed Up",
         })
     } catch (error) {
         console.log("Error:", error);
-        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+        res.status(error.statusCode).json({
             data: {},
             success: false,
-            message: "Internal Server Error!",
-            err: error
+            message: error.message,
+            err: error.description
         })
     }
 }
@@ -32,14 +31,14 @@ const signIn = async (req, res) => {
     try {
         const body = req.body;
         const token = await userService.signIn(body.email, body.password);
-        return res.status(SuccessCodes.OK).json({
+        return res.status(200).json({
             data: token,
             success: true,
             message: "Successfully Signed In",
         });
     } catch (error) {
         console.log("Error:", error);
-        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+        res.status(error.statusCode).json({
             data: {},
             success: false,
             message: "Internal Server Error!",
@@ -52,14 +51,14 @@ const isAuthenticated = async (req, res) => {
     try {
         const token = req.headers.authorization.split(" ")[1]
         const response = await userService.isAuthenticated(token);
-        res.status(SuccessCodes.OK).json({
+        res.status(200).json({
             data: response,
             success: true,
             message: "User Authenticated",
         })
     } catch (error) {
         console.log("Error:", error);
-        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+        res.status(error.statusCode).json({
             data: {},
             success: false,
             message: "Internal Server Error!",
@@ -72,14 +71,14 @@ const isAdmin = async (req, res) => {
     try {
         const body = req.body;
         const response = await userService.isAdmin(body.userId);
-        res.status(SuccessCodes.OK).json({
+        res.status(200).json({
             data: response,
             success: true,
             message: "Successfully fetched user is admin or not",
         })
     } catch (error) {
         console.log("Error:", error);
-        res.status(ServerErrors.INTERNAL_SERVER_ERROR).json({
+        res.status(error.statusCode).json({
             data: {},
             success: false,
             message: "Internal Server Error!",
