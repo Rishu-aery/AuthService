@@ -1,8 +1,10 @@
 const { UserRepository } = require("../repository/userRepository.js");
+const { JWT_SECRET } = require("../config/serverConfig.js");
+const { NOT_FOUND } = require("../utils/constants.js");
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const { JWT_SECRET } = require("../config/serverConfig.js")
 
 class UserService {
     constructor() {
@@ -32,7 +34,9 @@ class UserService {
             const newToken = this.generateToken({user: user.email, id: user.id});
             return newToken;
         } catch (error) {
-            console.error("Error While Signing In: ", error);
+            if (error.name === NOT_FOUND) {
+                throw error;
+            }
             throw error;
         }
     }
