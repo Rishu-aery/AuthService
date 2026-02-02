@@ -1,5 +1,7 @@
+const { StatusCodes } = require("http-status-codes");
 const { User, Role } = require("../models/index.js");
-const { ValidationError } = require("../utils/errorHandler.js");
+const { ValidationError, ClientError } = require("../utils/errorHandler.js");
+const { USER_NOT_FOUND } = require("../utils/constants.js");
 
 class UserRepository {
     async create(data) {
@@ -47,16 +49,11 @@ class UserRepository {
             });
 
             if (!user) {
-                // throw new AppErrors().clientError(
-                //     NOT_FOUND,
-                //     "Invalid email sent in request!",
-                //     "Email not found. Enter valid email!",
-                //     StatusCodes.NOT_FOUND
-                // );
+                throw new ClientError(StatusCodes.NOT_FOUND, USER_NOT_FOUND, USER_NOT_FOUND)
             }
-
             return user;
         } catch (error) {
+            console.error("Error In repository layer: ", error);
             throw error;
         }
     }
@@ -64,6 +61,9 @@ class UserRepository {
     async isAdmin(userId) {
         try {
             const user = await User.findByPk(userId);
+            if (!user) {
+                throw new ClientError(StatusCodes.NOT_FOUND, USER_NOT_FOUND, USER_NOT_FOUND)
+            }
             const role = await Role.findOne({
                 where: {
                     role: "ADMIN"

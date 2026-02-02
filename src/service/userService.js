@@ -1,9 +1,11 @@
 const { UserRepository } = require("../repository/userRepository.js");
 const { JWT_SECRET } = require("../config/serverConfig.js");
-const { NOT_FOUND } = require("../utils/constants.js");
+const { ClientError, InternalError } = require("../utils/errorHandler.js");
+const { USER_UNAUTHORIZED, AUTHENTICATION_ERROR, USER_NOT_FOUND } = require("../utils/constants.js");
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { StatusCodes } = require("http-status-codes");
 
 
 class UserService {
@@ -26,16 +28,12 @@ class UserService {
             
             const isPasswordMatch = await this.checkPassword(password, user.password);
             if (!isPasswordMatch) {
-                console.log("Password doesn't match");
-                throw { error: "Incorrect Password!" };
+                throw new ClientError(StatusCodes.UNAUTHORIZED, AUTHENTICATION_ERROR, USER_UNAUTHORIZED)
             }
 
             const newToken = this.generateToken({user: user.email, id: user.id});
             return newToken;
         } catch (error) {
-            if (error.name === NOT_FOUND) {
-                throw error;
-            }
             throw error;
         }
     }
@@ -46,11 +44,14 @@ class UserService {
 
             const user = await this.userRepository.getById(response.id);
             if (!user) {
-                throw { error: "User no longer exist for this token!" }
+                throw new ClientError(
+                    StatusCodes.NOT_FOUND,
+                    USER_NOT_FOUND,
+                    "User no longer exist for this token!"
+                )
             }
             return user.id
         } catch (error) {
-            console.error("Error In user authentication: ", error);
             throw error;
         }
     }
@@ -60,8 +61,7 @@ class UserService {
             const token = jwt.sign(user, JWT_SECRET, { expiresIn: "1d" })
             return token;
         } catch (error) {
-            console.error("Error while generating the token: ", error);
-            throw error;
+            throw new InternalError();
         }
     }
 
@@ -70,8 +70,7 @@ class UserService {
             const result = jwt.verify(token, jwtSecret);
             return result;
         } catch (error) {
-            console.error("Error while validating the token: ", error);
-            throw error;
+            throw new ClientError(StatusCodes.UNAUTHORIZED, AUTHENTICATION_ERROR, "Invalid token!");
         }
     }
 
@@ -79,8 +78,11 @@ class UserService {
         try {
             return await bcrypt.compare(plainPassword, encryptedPassword);
         } catch (error) {
-            console.error("Error while comparing the password:", error);
-            throw error;
+            throw new ClientError(
+            StatusCodes.UNAUTHORIZED, 
+            AUTHENTICATION_ERROR,
+            "AUTHENTICATION_ERROR"
+        );
         }
     }
 

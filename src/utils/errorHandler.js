@@ -30,6 +30,30 @@ class ValidationError extends AppError {
     }
 }
 
+class ClientError extends AppError {
+    constructor(statusCode, message, error) {
+        super(
+            statusCode,
+            message,
+            error
+        )
+    }
+}
+
+class InternalError extends AppError {
+    constructor(message = "Internal server error", originalError = null) {
+        super(
+            StatusCodes.INTERNAL_SERVER_ERROR,
+            message,
+            "An unexpected error occurred. Please try again later.", // Generic message
+        );
+        // Log original error but don't expose it
+        console.error("Internal Error:", message, originalError);
+    }
+}
+
 module.exports = {
-    ValidationError
+    ValidationError,
+    ClientError,
+    InternalError
 }

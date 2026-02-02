@@ -10,19 +10,12 @@ const create = async (req, res) => {
             password: body.password
         }
         const user = await userService.create(userRequest);
-
         return res.status(200).json({
             data: user,
             success: true,
             message: "Successfully Signed Up",
         })
     } catch (error) {
-        // res.status(error.statusCode).json({
-        //     data: {},
-        //     success: false,
-        //     message: error.message,
-        //     err: error.errors
-        // });
         res.status(error.statusCode).json(error);
     }
 }
@@ -37,13 +30,7 @@ const signIn = async (req, res) => {
             message: "Successfully Signed In",
         });
     } catch (error) {
-        console.log("Error:", error);
-        res.status(500).json({
-            data: {},
-            success: false,
-            message: "Internal Server Error!",
-            err: error
-        });
+        res.status(error.statusCode).json(error);
     }
 }
 
@@ -57,13 +44,7 @@ const isAuthenticated = async (req, res) => {
             message: "User Authenticated",
         })
     } catch (error) {
-        console.log("Error:", error);
-        res.status(error.statusCode).json({
-            data: {},
-            success: false,
-            message: "Internal Server Error!",
-            err: error
-        });
+        res.status(error.statusCode).json(error);
     }
 }
 
@@ -77,13 +58,7 @@ const isAdmin = async (req, res) => {
             message: "Successfully fetched user is admin or not",
         })
     } catch (error) {
-        console.log("Error:", error);
-        res.status(error.statusCode).json({
-            data: {},
-            success: false,
-            message: "Internal Server Error!",
-            err: error
-        });
+        res.status(error.statusCode).json(error);
     }
 }
 

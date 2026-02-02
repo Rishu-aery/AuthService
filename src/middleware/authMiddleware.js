@@ -2,7 +2,7 @@ const validateUserAuth = (req, res, next) => {
     const body = req.body;
 
     if (!body?.email || !body?.password) {
-        return res.status(401).json({
+        return res.status(400).json({
             data: {},
             success: false,
             message: "Invalid Request Body!",
@@ -15,7 +15,7 @@ const validateUserAuth = (req, res, next) => {
 
 const validateIsAdmin = (req, res, next) => {
     if (!req.body?.userId) {
-        return res.status(401).json({
+        return res.status(400).json({
             data: {},
             success: false,
             message: "Invalid Request Body!",
