@@ -1,31 +1,35 @@
-const { StatusCodes } = require('http-status-codes');
+const { StatusCodes } = require("http-status-codes");
 
-class AppErrors extends Error {
-    errorName;
-    description = [];
-    constructor(error) {
-        super();
-        this.errorName = error?.name;
-        this.description = error?.errors.map((err) => err.message);
-    }
+class AppError extends Error {
+    constructor(
+        statusCode,
+        message = "Something Went Wrong!",
+        errors = [],
+    ) {
+        super(message);
+        this.data = null;
+        this.success = false;
+        this.message = message;
+        this.errors = errors;
+        this.statusCode = statusCode;
 
-    validationError() {
-        return {
-            name: this.errorName,
-            message: "Not able to validate the requested input!",
-            description: this.description,
-            statusCode: StatusCodes.BAD_REQUEST
-        }
-    }
-
-    clientError(name, message, description, statusCode) {
-        return {
-            name,
-            message,
-            description,
-            statusCode
-        }
+        Error.captureStackTrace(this, this.constructor)
     }
 }
 
-module.exports = AppErrors; 
+
+class ValidationError extends AppError {
+    constructor(error) {
+        super(
+            StatusCodes.BAD_REQUEST,
+            "Not able to validate the requested input!",
+            error.errors.map((item) => {
+                return item.message
+            })
+        );
+    }
+}
+
+module.exports = {
+    ValidationError
+}

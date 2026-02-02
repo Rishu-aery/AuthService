@@ -17,13 +17,13 @@ const create = async (req, res) => {
             message: "Successfully Signed Up",
         })
     } catch (error) {
-        console.log("Error:", error);
-        res.status(error.statusCode).json({
-            data: {},
-            success: false,
-            message: error.message,
-            err: error.description
-        })
+        // res.status(error.statusCode).json({
+        //     data: {},
+        //     success: false,
+        //     message: error.message,
+        //     err: error.errors
+        // });
+        res.status(error.statusCode).json(error);
     }
 }
 
@@ -38,7 +38,7 @@ const signIn = async (req, res) => {
         });
     } catch (error) {
         console.log("Error:", error);
-        res.status(error.statusCode).json({
+        res.status(500).json({
             data: {},
             success: false,
             message: "Internal Server Error!",
